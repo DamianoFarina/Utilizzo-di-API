@@ -1,0 +1,72 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="stylesheet.css">
+</head>
+<body>
+    <select name="breeds" id="breeds">
+    </select>
+    <div id="container"></div>
+
+    <script>
+        const select = document.getElementById("breeds")
+        const container = document.getElementById("container")
+        
+        fetch("https://dog.ceo/api/breeds/list/all") // prendiamo l'api esterno
+        .then((response) =>response.json()) 
+        .then(data =>{
+            const obj = data.message
+            Object.keys(obj).forEach(key =>{  // Object.keys(obj) serve per prendere i valori all'interno dell'array 
+                if(obj[key].length == 0){ 
+                     createOption(key)  // se l'array ha lunghezza 0 viene stampato 
+                    }else{  
+                         obj[key].forEach(element =>{  //se l'array ha lunghezza maggiore di 0 gli elementi all'interno vengono ciclati 
+                            createOption(`${element} ${key}`)  //  Gli elementi ciclati vengono stampati 
+                         })
+                    }
+            })
+            caricaDati(select.value)
+         })
+
+         function createOption(value){
+            const option = document.createElement("option")
+            option.value = value
+            option.appendChild(document.createTextNode(value))
+            select.appendChild(option)
+            }
+
+            select.addEventListener("change",(e)=>{
+            while(container.firstChild){  // serve per filtrare la ricerca
+                container.removeChild(container.firstChild)
+            }
+            console.log(e.target.value)
+            caricaDati(e.target.value)
+            })
+
+            function caricaDati(value){ 
+            if(value == "") return
+            fetch(`https://dog.ceo/api/breed/${value}/images`)
+            .then(response => response.json())
+            .then(data => {
+                console.log(data)
+                generaCard(data.message)
+            })
+        }
+
+        function generaCard(foto){
+            foto.sort(()=> Math.random() - 0.5)
+            foto.forEach(photo =>{
+                const card =document.createElement("div")
+                card.classList.add("card")
+                card.style.backgroundImage = `url(${photo})`
+                container.appendChild(card)
+            })
+        }
+
+  </script>
+
+</body>
+</html>
